@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "regen"
+version = "0.1.0"
+description = ""
+authors = ["nishan0000 <mdnishan006@gmail.com>"]
+readme = "README.md"
+packages = [{include = "regen", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+selenium = "4.9.0"
+numpy = "^1.26.4"
+pandas = "^2.2.1"
+requests = "^2.31.0"
+ipykernel = "^6.29.3"
+webdriver-manager = "^4.0.1"
+linkedin-scraper = "^2.11.2"
+
+
+[tool.poetry.group.dev.dependencies]
+jupyter = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
