@@ -6,6 +6,7 @@ from selenium.webdriver.edge.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
 
 import urllib.parse
 
@@ -76,8 +77,25 @@ class LinkedInDescriptionScraper:
         # Add a short delay
         time.sleep(0.5)
         
-        # Find and extract job description text
-        self.job_description = self.driver.find_element(By.CLASS_NAME, "description__text.description__text--rich").text
+        try:
+            # Use CSS selector to find the element with multiple class names
+            self.job_description = self.driver.find_element(By.CSS_SELECTOR, ".description__text.description__text--rich").text
+        except NoSuchElementException:
+            # Define a maximum number of attempts to avoid infinite loop
+            max_attempts = 5
+            attempts = 0
+            while attempts < max_attempts:
+                self.driver.get(self.description_url)
+                try:
+                    # Use CSS selector to find the element with multiple class names
+                    self.job_description = self.driver.find_element(By.CSS_SELECTOR, ".description__text.description__text--rich").text
+                    break
+                except NoSuchElementException:
+                    # Increasing attempts
+                    attempts += 1
+                    # Wait for 1 second before retrying
+                    time.sleep(1) 
+
         return self.job_description
 
     def getDescriptionFromUrl(self, job_url):
@@ -103,9 +121,25 @@ class LinkedInDescriptionScraper:
         # Add a short delay
         time.sleep(0.5)
         
-        # Find and extract job description text
-        self.job_description = self.driver.find_element(By.CLASS_NAME, "description__text.description__text--rich").text
-       
+        try:
+            # Use CSS selector to find the element with multiple class names
+            self.job_description = self.driver.find_element(By.CSS_SELECTOR, ".description__text.description__text--rich").text
+        except NoSuchElementException:
+            # Define a maximum number of attempts to avoid infinite loop
+            max_attempts = 5
+            attempts = 0
+            while attempts < max_attempts:
+                self.driver.get(self.description_url)
+                try:
+                    # Use CSS selector to find the element with multiple class names
+                    self.job_description = self.driver.find_element(By.CSS_SELECTOR, ".description__text.description__text--rich").text
+                    break
+                except NoSuchElementException:
+                    # Increasing attempts
+                    attempts += 1
+                    # Wait for 1 second before retrying
+                    time.sleep(1) 
+                    
         return self.job_description
 
     def getDescription(self, job_id=None, job_url=None):
