@@ -28,7 +28,7 @@ class LinkedInJobListingScraper:
         """
         self.options = Options()
         self.options.use_chromium = True
-        # self.options.add_argument("--headless")  # Uncomment for headless mode
+        self.options.add_argument("--headless")  # Uncomment for headless mode
 
         self.service = Service(executable_path=EdgeChromiumDriverManager().install())
         self.driver = webdriver.Edge(service=self.service, options=self.options)
@@ -154,24 +154,32 @@ class LinkedInJobListingScraper:
             pd.DataFrame: DataFrame containing all scraped job details.
         """
         self.load_cookies(cookies_file)
-        num_pages = math.ceil(num_results / 25)
-        starts = [i * 25 for i in range(num_pages)]
-
         all_jobs = []
-        for start in starts:
+        start = 0  # Start at the first page
+        total_jobs_collected = 0  # Keep track of how many jobs have been collected
+
+        # Continue scraping until we have collected the desired number of jobs
+        while total_jobs_collected < num_results:
             print(f"Scraping page starting at {start}")
             linkedin_url = self.generate_linkedin_url(job_title, location, start)
             jobs = self.fetch_job_listings(linkedin_url)
             jobs_data = self.get_jobs_data(jobs)
+            
             all_jobs.append(jobs_data)
+            total_jobs_collected += len(jobs_data)  # Update the total number of jobs collected
 
+            # If fewer jobs were found than expected (e.g., end of listings), break the loop
+            if len(jobs_data) == 0:
+                print("No more jobs found on this page.")
+                break
+
+            start += 25  # Move to the next page
+
+        # Combine all the jobs into one DataFrame
         jobs_dataframe = pd.concat(all_jobs).reset_index(drop=True)
         jobs_dataframe['Job ID'] = jobs_dataframe['Job Post Url'].apply(lambda x: x.split('/')[5])
-        return jobs_dataframe
 
-    def close(self):
-        """
-        Closes the WebDriver session.
-        """
         self.driver.quit()
 
+        # If we collected more jobs than required, trim the DataFrame
+        return jobs_dataframe.head(num_results)
