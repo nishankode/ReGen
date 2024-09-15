@@ -7,6 +7,27 @@ import os
 
 
 def generate_resume_from_json(json_data, jobid):
+
+    """
+    Generate a PDF resume from JSON data.
+
+    This function takes a JSON object containing personal and professional information
+    and creates a formatted PDF resume. The resume includes sections such as contact
+    information, professional summary, skills, experience, projects, education,
+    certifications, and more.
+
+    Args:
+        json_data (dict): A dictionary containing the resume information.
+        jobid (str): A unique identifier for the job application.
+
+    Returns:
+        str: The file path of the generated PDF resume.
+
+    Note:
+        The function saves the generated PDF in a '../generatedResumes' directory
+        with the filename format '{jobid}.pdf'.
+    """
+
     buffer = BytesIO()
     pdf = SimpleDocTemplate(buffer, pagesize=LETTER)
     styles = getSampleStyleSheet()
