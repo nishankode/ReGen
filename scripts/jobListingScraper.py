@@ -181,5 +181,8 @@ class LinkedInJobListingScraper:
 
         self.driver.quit()
 
+        jobs_df = jobs_dataframe.head(num_results)
+        jobs_df.to_csv(f'../data/Scraped {job_title}.csv', index=False)
+
         # If we collected more jobs than required, trim the DataFrame
-        return jobs_dataframe.head(num_results)
+        return jobs_df
