@@ -38,3 +38,4 @@ Before you can use the AI Assisted Resume Generator, ensure that the following s
 3. **Install Required Packages:** Once the virtual environment is activated, install the necessary dependencies by running the following command:
    ```pip install -r requirements.txt```
 
+### TO BE COMPLETED
