@@ -29,9 +29,12 @@ Before you can use the AI Assisted Resume Generator, ensure that the following s
    cd ai-assisted-resume-generator
    ```
 2. **Create a Virtual Environment:** It’s recommended to use a virtual environment to manage dependencies and isolate the project from your global Python environment.
-    - On Windows
+    - On Windows: 
       ```python -m venv regen-py```
       ```.\regen-py\Scripts\activate```
-    - On Mac and Linux
+    - On Mac and Linux: 
       ```python3 -m venv regen-py```
       ```source regen-py/bin/activate```
+3. **Install Required Packages:** Once the virtual environment is activated, install the necessary dependencies by running the following command:
+   ```pip install -r requirements.txt```
+
