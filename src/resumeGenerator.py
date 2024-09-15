@@ -113,7 +113,7 @@ def generate_resume_from_json(json_data, jobid):
 
     # Save PDF to file
     output_filename = f"{jobid}.pdf"
-    output_filepath = os.path.join('generatedResumes', output_filename)
+    output_filepath = os.path.join('../generatedResumes', output_filename)
     with open(output_filepath, "wb") as f:
         f.write(buffer.getvalue())
 
