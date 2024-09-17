@@ -5,9 +5,17 @@ from reportlab.lib import colors
 from io import BytesIO
 import os
 
+def is_content_empty(content):
+    """
+    Check if the content is effectively empty.
+    """
+    if isinstance(content, str):
+        return not content.strip()
+    elif isinstance(content, (list, dict)):
+        return not content
+    return True
 
 def generate_resume_from_json(json_data, jobid):
-
     """
     Generate a PDF resume from JSON data.
 
@@ -35,97 +43,101 @@ def generate_resume_from_json(json_data, jobid):
     content = []
     
     # Add Name
-    content.append(Paragraph(f"<b>{json_data.get('name', 'Your Name')}</b>", styles['Title']))
+    if 'name' in json_data and not is_content_empty(json_data['name']):
+        content.append(Paragraph(f"<b>{json_data['name']}</b>", styles['Title']))
     
     # Add Contact Info
-    contact = json_data.get("contact", {})
-    contact_info = f"Email: {contact.get('email', '')} | Phone: {contact.get('phone', '')} | LinkedIn: {contact.get('linkedin', '')} | GitHub: {contact.get('github', '')} | Location: {contact.get('location', '')}"
-    content.append(Paragraph(contact_info, styles['Normal']))
-    content.append(Spacer(1, 12))
+    if 'contact' in json_data and not is_content_empty(json_data['contact']):
+        contact = json_data['contact']
+        contact_info = []
+        for field in ['email', 'phone', 'linkedin', 'github', 'location']:
+            if field in contact and not is_content_empty(contact[field]):
+                contact_info.append(f"{field.capitalize()}: {contact[field]}")
+        if contact_info:
+            content.append(Paragraph(" | ".join(contact_info), styles['Normal']))
+            content.append(Spacer(1, 12))
 
     # Add Summary
-    content.append(Paragraph("<b>Professional Summary</b>", styles['Heading2']))
-    content.append(Paragraph(json_data.get('summary', 'Summary not provided'), styles['Normal']))
-    content.append(Spacer(1, 12))
+    if 'summary' in json_data and not is_content_empty(json_data['summary']):
+        content.append(Paragraph("<b>Professional Summary</b>", styles['Heading2']))
+        content.append(Paragraph(json_data['summary'], styles['Normal']))
+        content.append(Spacer(1, 12))
     
     # Add Skills
-    content.append(Paragraph("<b>Skills</b>", styles['Heading2']))
-    skills = json_data.get('skills', {})
-    for skill_category, skill_list in skills.items():
-        content.append(Paragraph(f"<b>{skill_category.replace('_', ' ').capitalize()}:</b>", styles['Normal']))
-        content.append(Paragraph(", ".join(skill_list), styles['Normal']))
-    content.append(Spacer(1, 12))
+    if 'skills' in json_data and not is_content_empty(json_data['skills']):
+        content.append(Paragraph("<b>Skills</b>", styles['Heading2']))
+        for skill_category, skill_list in json_data['skills'].items():
+            if not is_content_empty(skill_list):
+                content.append(Paragraph(f"<b>{skill_category}:</b>", styles['Normal']))
+                content.append(Paragraph(", ".join(skill_list), styles['Normal']))
+        content.append(Spacer(1, 12))
 
     # Add Experience
-    content.append(Paragraph("<b>Professional Experience</b>", styles['Heading2']))
-    experience = json_data.get('experience', [])
-    for job in experience:
-        content.append(Paragraph(f"<b>{job.get('title', '')}</b>", styles['Heading3']))
-        content.append(Paragraph(f"{job.get('company', '')} – {job.get('location', '')}", styles['Normal']))
-        content.append(Paragraph(f"{job.get('duration', '')}", styles['Normal']))
-        for responsibility in job.get('responsibilities', []):
-            content.append(Paragraph(f"• {responsibility}", styles['Normal']))
-        content.append(Spacer(1, 12))
+    if 'experience' in json_data and not is_content_empty(json_data['experience']):
+        content.append(Paragraph("<b>Professional Experience</b>", styles['Heading2']))
+        for job in json_data['experience']:
+            if not is_content_empty(job):
+                content.append(Paragraph(f"<b>{job.get('title', '')}</b>", styles['Heading3']))
+                content.append(Paragraph(f"{job.get('company', '')} – {job.get('location', '')}", styles['Normal']))
+                content.append(Paragraph(f"{job.get('duration', '')}", styles['Normal']))
+                responsibilities = job.get('responsibilities', [])
+                if not is_content_empty(responsibilities):
+                    for responsibility in responsibilities:
+                        content.append(Paragraph(f"• {responsibility}", styles['Normal']))
+                content.append(Spacer(1, 12))
 
     # Add Projects
-    content.append(Paragraph("<b>Projects</b>", styles['Heading2']))
-    projects = json_data.get('projects', [])
-    for project in projects:
-        content.append(Paragraph(f"<b>{project.get('name', '')}</b>", styles['Heading3']))
-        content.append(Paragraph(project.get('company', ''), styles['Normal']))
-        content.append(Paragraph(project.get('description', ''), styles['Normal']))
-        content.append(Spacer(1, 12))
+    if 'projects' in json_data and not is_content_empty(json_data['projects']):
+        content.append(Paragraph("<b>Projects</b>", styles['Heading2']))
+        for project in json_data['projects']:
+            if not is_content_empty(project):
+                content.append(Paragraph(f"<b>{project.get('name', '')}</b>", styles['Heading3']))
+                content.append(Paragraph(project.get('company', ''), styles['Normal']))
+                content.append(Paragraph(project.get('description', ''), styles['Normal']))
+                content.append(Spacer(1, 12))
 
     # Add Open Source Contributions
-    content.append(Paragraph("<b>Open Source Contributions</b>", styles['Heading2']))
-    contributions = json_data.get('open_source_contributions', [])
-    for contrib in contributions:
-        content.append(Paragraph(f"<b>{contrib.get('project', '')}</b>", styles['Heading3']))
-        content.append(Paragraph(contrib.get('contribution', ''), styles['Normal']))
-        content.append(Spacer(1, 12))
+    if 'open_source_contributions' in json_data and not is_content_empty(json_data['open_source_contributions']):
+        content.append(Paragraph("<b>Open Source Contributions</b>", styles['Heading2']))
+        for contrib in json_data['open_source_contributions']:
+            if not is_content_empty(contrib):
+                content.append(Paragraph(f"<b>{contrib.get('project', '')}</b>", styles['Heading3']))
+                content.append(Paragraph(contrib.get('contribution', ''), styles['Normal']))
+                content.append(Spacer(1, 12))
 
     # Add Education
-    content.append(Paragraph("<b>Education</b>", styles['Heading2']))
-    education = json_data.get('education', {})
-    content.append(Paragraph(education.get('degree', 'Degree not provided'), styles['Heading3']))
-    content.append(Paragraph(education.get('institution', 'Institution not provided'), styles['Normal']))
-    content.append(Paragraph(f"Graduation Year: {education.get('graduation_year', '')}", styles['Normal']))
-    content.append(Paragraph(f"Relevant Courses: {', '.join(education.get('relevant_courses', []))}", styles['Normal']))
-    content.append(Spacer(1, 12))
+    if 'education' in json_data and not is_content_empty(json_data['education']):
+        content.append(Paragraph("<b>Education</b>", styles['Heading2']))
+        for edu in json_data['education']:
+            if not is_content_empty(edu):
+                content.append(Paragraph(edu.get('degree', ''), styles['Heading3']))
+                content.append(Paragraph(edu.get('institution', ''), styles['Normal']))
+                if 'graduation_year' in edu and not is_content_empty(edu['graduation_year']):
+                    content.append(Paragraph(f"Graduation Year: {edu['graduation_year']}", styles['Normal']))
+                if 'relevant_courses' in edu and not is_content_empty(edu['relevant_courses']):
+                    content.append(Paragraph(f"Relevant Courses: {', '.join(edu['relevant_courses'])}", styles['Normal']))
+                content.append(Spacer(1, 12))
 
     # Add Certifications
-    content.append(Paragraph("<b>Certifications</b>", styles['Heading2']))
-    certifications = json_data.get('certifications', [])
-    for cert in certifications:
-        content.append(Paragraph(f"{cert.get('name', '')}, Issued: {cert.get('issued', '')}", styles['Normal']))
-    content.append(Spacer(1, 12))
+    if 'certifications' in json_data and not is_content_empty(json_data['certifications']):
+        content.append(Paragraph("<b>Certifications</b>", styles['Heading2']))
+        for cert in json_data['certifications']:
+            if not is_content_empty(cert):
+                content.append(Paragraph(f"{cert.get('name', '')}, Issued: {cert.get('issued', '')}", styles['Normal']))
+        content.append(Spacer(1, 12))
 
     # Add Technical Proficiencies
-    content.append(Paragraph("<b>Technical Proficiencies</b>", styles['Heading2']))
-    technical_proficiencies = json_data.get('technical_proficiencies', {})
-    for category, profs in technical_proficiencies.items():
-        content.append(Paragraph(f"{category.capitalize()}: {', '.join(profs)}", styles['Normal']))
-    content.append(Spacer(1, 12))
-
-    # Add Publications & Talks
-    content.append(Paragraph("<b>Publications & Talks</b>", styles['Heading2']))
-    publications = json_data.get('publications_talks', [])
-    for pub in publications:
-        content.append(Paragraph(f"{pub.get('title', '')}, {pub.get('event', '')} ({pub.get('year', '')})", styles['Normal']))
-    content.append(Spacer(1, 12))
-
-    # Add Volunteer Experience
-    content.append(Paragraph("<b>Volunteer Experience</b>", styles['Heading2']))
-    volunteer_experience = json_data.get('volunteer_experience', [])
-    for exp in volunteer_experience:
-        content.append(Paragraph(f"{exp.get('organization', '')} - {exp.get('role', '')}", styles['Normal']))
-        content.append(Paragraph(exp.get('description', ''), styles['Normal']))
-    content.append(Spacer(1, 12))
+    if 'technical_proficiencies' in json_data and not is_content_empty(json_data['technical_proficiencies']):
+        content.append(Paragraph("<b>Technical Proficiencies</b>", styles['Heading2']))
+        for category, profs in json_data['technical_proficiencies'].items():
+            if not is_content_empty(profs):
+                content.append(Paragraph(f"{category.capitalize()}: {', '.join(profs)}", styles['Normal']))
+        content.append(Spacer(1, 12))
 
     # Add References
-    references = json_data.get('references', 'Available upon request.')
-    content.append(Paragraph("<b>References</b>", styles['Heading2']))
-    content.append(Paragraph(references, styles['Normal']))
+    if 'references' in json_data and not is_content_empty(json_data['references']):
+        content.append(Paragraph("<b>References</b>", styles['Heading2']))
+        content.append(Paragraph(json_data['references'], styles['Normal']))
 
     # Build PDF
     pdf.build(content)
@@ -135,6 +147,7 @@ def generate_resume_from_json(json_data, jobid):
     # Save PDF to file
     output_filename = f"{jobid}.pdf"
     output_filepath = os.path.join('../generatedResumes', output_filename)
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
     with open(output_filepath, "wb") as f:
         f.write(buffer.getvalue())
 
