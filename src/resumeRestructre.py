@@ -167,4 +167,4 @@ def save_restructured_resume(old_resume_path, restructured_resume_id):
     parsed_json = restructure_old_resume(old_resume_path)
     restructured_resume_path = generate_resume_from_json(parsed_json, restructured_resume_id)
     
-    return restructured_resume_path
+    return restructured_resume_path, parsed_json

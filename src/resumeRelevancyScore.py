@@ -1,6 +1,8 @@
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import os
+from pdfLoader import loadPdfContent
 
 class RelevanceScorer:
     """
@@ -42,6 +44,19 @@ class RelevanceScorer:
         resume_embedding = self.model.encode(resume_text, convert_to_tensor=True)
         job_description_embedding = self.model.encode(job_description_text, convert_to_tensor=True)
         
+        # Calculate cosine similarity
+        similarity = cosine_similarity(resume_embedding.cpu().numpy().reshape(1, -1), 
+                                       job_description_embedding.cpu().numpy().reshape(1, -1))[0][0]
+        
+        # Convert similarity to score out of 100
+        score = (similarity + 1) / 2 * 100
+        
+        return round(score, 2)
+    
+    def calculate_relevance_score_new(self, job_id, job_description_text):
+        resume_text = loadPdfContent(os.path.join('../generatedResumes', f"{job_id}.pdf"))
+        resume_embedding = self.model.encode(resume_text, convert_to_tensor=True)
+        job_description_embedding = self.model.encode(job_description_text, convert_to_tensor=True)
         # Calculate cosine similarity
         similarity = cosine_similarity(resume_embedding.cpu().numpy().reshape(1, -1), 
                                        job_description_embedding.cpu().numpy().reshape(1, -1))[0][0]
