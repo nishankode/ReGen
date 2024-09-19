@@ -7,6 +7,11 @@ __pycache__
 # C extensions
 *.so
 
+# Venv
+# Ignore the virtual environment folder
+regenenv/
+
+
 # Distribution / packaging
 .Python
 build/
