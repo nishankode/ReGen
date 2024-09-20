@@ -28,7 +28,7 @@ class LinkedInJobListingScraper:
         """
         self.options = Options()
         self.options.use_chromium = True
-        self.options.add_argument("--headless")  # Uncomment for headless mode
+        # self.options.add_argument("--headless")  # Uncomment for headless mode
 
         self.service = Service(executable_path=EdgeChromiumDriverManager().install())
         self.driver = webdriver.Edge(service=self.service, options=self.options)
@@ -48,6 +48,25 @@ class LinkedInJobListingScraper:
         for cookie in cookies:
             self.driver.add_cookie(cookie)
         self.driver.refresh()
+
+    def login_with_credentials(self, username, password):
+        """
+        Logs in to LinkedIn using predefined username and password.
+
+        This function locates the username and password fields on the LinkedIn login page,
+        fills them with the provided credentials, and clicks the 'Sign In' button to submit the form.
+        """
+        # Find the username input field by its ID and enter the username
+        self.driver.find_element(By.ID, 'username').send_keys(username)
+
+        # Find the password input field by its ID and enter the password
+        self.driver.find_element(By.ID, 'password').send_keys(password)
+
+        # Find the 'Sign In' button using CSS selector and click it to submit the login form
+        self.driver.find_element(By.CSS_SELECTOR, "button.btn__primary--large").click()
+
+        # Sleeping for 2 seconds
+        time.sleep(2)
 
     def generate_linkedin_url(self, job_title, location, start):
         """
@@ -140,7 +159,7 @@ class LinkedInJobListingScraper:
 
         return pd.DataFrame(lst)
 
-    def scrape_linkedin_jobs(self, job_title, location, num_results, cookies_file):
+    def scrape_linkedin_jobs(self, job_title, location, num_results, username, password):
         """
         Scrapes LinkedIn job listings and returns the job details.
 
@@ -153,7 +172,9 @@ class LinkedInJobListingScraper:
         Returns:
             pd.DataFrame: DataFrame containing all scraped job details.
         """
-        self.load_cookies(cookies_file)
+        self.driver.get('https://www.linkedin.com/checkpoint/lg/sign-in-another-account')
+        self.login_with_credentials(username, password)
+        
         all_jobs = []
         start = 0  # Start at the first page
         total_jobs_collected = 0  # Keep track of how many jobs have been collected

@@ -140,7 +140,7 @@ def get_restructure_prompt(resume_text):
 
 def restructure_old_resume(old_resume_path):
 
-    resume_text = loadPdfContent('../inputs/sample_resume_input_1.pdf')
+    resume_text = loadPdfContent(old_resume_path)
 
     restructured_prompt = get_restructure_prompt(resume_text)
 
