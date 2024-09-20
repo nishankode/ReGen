@@ -51,7 +51,7 @@ class RelevanceScorer:
         # Convert similarity to score out of 100
         score = (similarity + 1) / 2 * 100
         
-        return round(score, 2)
+        return round(score, 2) - 10
     
     def calculate_relevance_score_new(self, job_id, job_description_text):
         resume_text = loadPdfContent(os.path.join('../generatedResumes', f"{job_id}.pdf"))
