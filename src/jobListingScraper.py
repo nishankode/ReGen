@@ -35,20 +35,6 @@ class LinkedInJobListingScraper:
         self.wait = WebDriverWait(self.driver, 10)
         self.driver.maximize_window()
 
-    def load_cookies(self, cookies_file):
-        """
-        Load cookies from a file and add them to the current session.
-        
-        Args:
-            cookies_file (str): The path to the cookies file.
-        """
-        self.driver.get("https://www.linkedin.com")
-        with open(cookies_file, "rb") as file:
-            cookies = pickle.load(file)
-        for cookie in cookies:
-            self.driver.add_cookie(cookie)
-        self.driver.refresh()
-
     def login_with_credentials(self, username, password):
         """
         Logs in to LinkedIn using predefined username and password.
